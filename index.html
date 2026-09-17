@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grand Draw BPKPD</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="splash-screen" id="splashScreen" role="status" aria-label="Memuat Grand Draw BPKPD">
+  <div class="splash-content">
+    <div class="splash-logo-wrap">
+      <img src="images/logo.png" alt="Logo BPKPD">
+    </div>
+    <div class="splash-title">GRAND DRAW BPKPD</div>
+    <div class="splash-loading"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <button class="brand" id="brandHomeBtn" type="button" aria-label="Kembali ke Dashboard">
+      <div class="brand-mark">
+        <img src="images/logo.png" alt="Logo Grand Draw BPKPD">
+      </div>
+      <div class="brand-text">GRAND DRAW <span>BPKPD &middot; Pengundian Peserta</span></div>
+    </button>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+
+    <nav class="main-nav" id="mainNav">
+      <button class="nav-link active" data-view="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+      <button class="nav-link" data-view="peserta"><span class="nav-icon">♙</span>Peserta</button>
+      <button class="nav-link" data-view="undian"><span class="nav-icon">✦</span>Undian &amp; Hadiah</button>
+      <button class="nav-link" data-view="arsip"><span class="nav-icon">▣</span>Arsip Pemenang</button>
+    </nav>
+
+    <div class="header-right">
+      <button class="btn-reset" id="resetBtn"><span aria-hidden="true">↻</span> Reset Data</button>
+      <span class="header-divider" aria-hidden="true"></span>
+      <div class="clock" id="clockDisplay">
+        <span class="clock-icon" aria-hidden="true">◷</span>
+        <span class="clock-content"><strong class="clock-time">--:--:--</strong><span class="clock-date">-</span></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- DASHBOARD VIEW -->
+  <section class="view active" id="view-dashboard">
+    <div class="hero">
+      <div class="hero-stripes" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="hero-body">
+        <div class="hero-copy">
+          <h1 class="hero-title">PENGUNDIAN RESMI<br><em class="hero-title-main">GRAND DRAW BPKPD</em></h1>
+          <p class="hero-sub">Pengundian resmi yang transparan, adil, dan terpercaya.<br>Sistem pengundian berbasis browser untuk menentukan pemenang secara acak dan memastikan setiap peserta memiliki kesempatan yang sama.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-goto="undian">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7z" fill="currentColor"/></svg>
+              Mulai Undian
+            </button>
+            <button class="btn btn-secondary" data-goto="arsip"><span aria-hidden="true">🏆</span> Lihat Pemenang</button>
+          </div>
+        </div>
+        <div class="hero-figure">
+          <img src="images/karakter2%20Background%20Removed.png" alt="Karakter Grand Draw BPKPD">
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-cell c-purple">
+          <div class="accent-bar"></div>
+          <div class="stat-value" id="statActive">0</div>
+          <div class="stat-label">Peserta aktif</div>
+        </div>
+        <div class="stat-cell c-gold">
+          <div class="accent-bar"></div>
+          <div class="stat-value" id="statWinners">0</div>
+          <div class="stat-label">Jumlah pemenang</div>
+        </div>
+        <div class="stat-cell c-blue">
+          <div class="accent-bar"></div>
+          <div class="stat-value" id="statRemaining">0</div>
+          <div class="stat-label">Peserta tersisa</div>
+        </div>
+        <div class="stat-cell c-neutral">
+          <div class="accent-bar"></div>
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total peserta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Ringkasan progres undian <span class="sub" id="dashProgressPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="dashProgressFill" style="width:0%"></div></div>
+        <div class="progress-labels">
+          <span id="dashProgressLeft">0 di pool</span>
+          <span id="dashProgressRight">0 total</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Hadiah terpasang <span class="sub" id="dashPrizeCount">0 kategori</span></div>
+        <div class="prize-list" id="dashPrizeList">
+          <p class="empty-note">Belum ada hadiah diatur. Buka tab Undian &amp; Hadiah.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PESERTA VIEW -->
+  <section class="view" id="view-peserta">
+    <div class="view-header">
+      <div>
+        <h2>Daftar peserta</h2>
+        <p>Impor peserta melalui CSV atau muat data contoh untuk mencoba sistem.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Impor peserta</div>
+        <div class="import-row">
+          <label class="file-drop" for="csvInput">
+            <input type="file" id="csvInput" accept=".csv">
+            📄 Klik untuk unggah file CSV (Plat Nomor, ID, Alamat)
+          </label>
+        </div>
+        <div class="import-row" style="margin-top:10px;">
+          <button class="btn btn-secondary" id="loadSampleBtn" style="flex:1;">Muat 15.000 Data Dummy</button>
+        </div>
+        <p class="empty-note" id="importHint" style="text-align:left;padding:12px 2px 0;">Kolom yang dikenali: Plat Nomor/Nopol/Plate, ID/NIK/Kode, Alamat/Address. Duplikat (ID + Plat Nomor sama) otomatis dilewati.</p>
+
+        <div class="participant-filters">
+          <label class="search-field">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" id="participantSearch" placeholder="Cari plat nomor, ID, atau alamat..." autocomplete="off">
+          </label>
+          <select id="participantDeptFilter" aria-label="Filter alamat">
+            <option value="">Semua alamat</option>
+          </select>
+          <select id="participantStatusFilter" aria-label="Filter status peserta">
+            <option value="">Semua status</option>
+            <option value="active">Aktif</option>
+            <option value="won">Sudah menang</option>
+          </select>
+          <button class="btn btn-ghost filter-reset" id="resetParticipantFilter" type="button">Reset</button>
+        </div>
+
+        <div class="mini-table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Plat Nomor</th><th>Alamat</th><th>Status</th></tr></thead>
+            <tbody id="participantsTableBody"></tbody>
+          </table>
+          <div class="table-note" id="participantsTableNote">Belum ada peserta.</div>
+          <div class="pagination" id="participantsPagination">
+            <button class="btn btn-ghost" id="participantsPrev" type="button">← Sebelumnya</button>
+            <span id="participantsPageInfo">Halaman 1</span>
+            <button class="btn btn-ghost" id="participantsNext" type="button">Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Ringkasan</div>
+        <div class="draw-meta" style="border-top:0;padding-top:0;margin-top:0;flex-direction:column;gap:18px;">
+          <div><span>Total peserta</span><strong id="pesertaTotal">0</strong></div>
+          <div><span>Peserta aktif (belum menang)</span><strong id="pesertaActive">0</strong></div>
+          <div><span>Sudah menang</span><strong id="pesertaWon">0</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UNDIAN & HADIAH VIEW -->
+  <section class="view" id="view-undian">
+    <div class="view-header">
+      <div>
+        <h2>Undian &amp; hadiah</h2>
+        <p>Atur kategori hadiah, lalu jalankan pengundian secara acak dan aman.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="draw-card">
+        <div class="draw-status" id="drawStatus"><span class="pulse"></span> Siap diundi</div>
+        <div class="reel" id="reel">
+          <div class="reel-name" id="reelName">Tekan Putar Sekarang</div>
+          <div class="reel-sub" id="reelSub">Sistem akan memilih peserta secara acak dan aman</div>
+        </div>
+        <div class="draw-controls">
+          <button class="btn btn-primary" id="spinBtn">
+            <svg class="spin-button-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M5.99 5.99l2.12 2.12M15.89 15.89l2.12 2.12M18.01 5.99l-2.12 2.12M8.11 15.89l-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="2.1" fill="currentColor"/>
+            </svg>
+            Putar Sekarang
+          </button>
+          <button class="btn btn-danger-outline" id="cancelLastBtn" disabled>Batalkan Pemenang Terakhir</button>
+        </div>
+        <div class="draw-meta">
+          <div><span>Kebutuhan pemenang saat ini</span><strong id="metaNeeded">0</strong></div>
+          <div><span>Peserta aktif tersedia</span><strong id="metaActive">0</strong></div>
+          <div><span>Undian dilakukan</span><strong id="metaRounds">0</strong></div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="panel">
+          <div class="panel-title">Daftar peserta <span class="sub" id="undianActiveCount">0 aktif</span></div>
+          <div class="import-row">
+            <label class="file-drop" for="csvInput2">
+              <input type="file" id="csvInput2" accept=".csv">
+              Impor CSV
+            </label>
+            <button class="btn btn-ghost" id="loadSampleBtn2" style="flex:1;">Muat 15.000 Data(Dummy)</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Progres undian</div>
+          <div class="progress-track"><div class="progress-fill" id="undianProgressFill" style="width:0%"></div></div>
+          <div class="progress-labels">
+            <span id="undianProgressLeft">0 di pool</span>
+            <span id="undianProgressPct">0%</span>
+            <span id="undianProgressRight">0 total</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Pengaturan hadiah baru</div>
+          <div class="prize-form">
+            <input type="number" id="prizeQty" min="1" value="1" placeholder="Jml">
+            <input type="text" id="prizeName" placeholder="NAMA / KATEGORI HADIAH, MIS. MAGICOM">
+            <button class="btn btn-secondary" id="addPrizeBtn">Tambah</button>
+          </div>
+          <div class="prize-list" id="prizeList">
+            <p class="empty-note">Belum ada hadiah. Tambahkan kategori di atas.</p>
+          </div>
+          <div class="prize-history">
+            <div class="prize-history-title">Catatan pengaturan yang sudah diundi</div>
+            <div id="prizeHistoryList">
+              <p class="empty-note">Belum ada pengaturan yang selesai diundi.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel winners-panel">
+      <div class="panel-title">Pemenang undian saat ini <span class="sub" id="undianWinnerCount">0 pemenang</span></div>
+      <div class="winner-summary-list" id="undianWinnerList">
+        <p class="empty-note">Belum ada pemenang.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARSIP VIEW -->
+  <section class="view" id="view-arsip">
+    <div class="view-header">
+      <div>
+        <h2>Arsip pemenang</h2>
+        <p>Riwayat pemenang, termasuk undian yang dibatalkan.</p>
+      </div>
+      <button class="btn btn-primary" id="exportCsvBtn">⭳ Download Excel</button>
+    </div>
+
+    <div class="panel">
+      <div class="archive-filters">
+        <label class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" id="archiveSearch" placeholder="Cari plat nomor, ID, atau alamat..." autocomplete="off">
+        </label>
+        <select id="archiveDeptFilter" aria-label="Filter alamat arsip">
+          <option value="">Semua alamat</option>
+        </select>
+        <select id="archiveSort" aria-label="Urutkan arsip pemenang">
+          <option value="number">Urutan pemenang 1–seterusnya</option>
+          <option value="department">Alamat A–Z</option>
+          <option value="name">Plat Nomor A–Z</option>
+          <option value="latest">Pemenang terbaru</option>
+        </select>
+        <button class="btn btn-ghost filter-reset" id="resetArchiveFilter" type="button">Reset</button>
+      </div>
+      <div class="mini-table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr><th>No</th><th>ID Peserta</th><th>Plat Nomor</th><th>Alamat</th><th>Hadiah</th><th>Waktu</th><th>Status</th></tr>
+          </thead>
+          <tbody id="archiveTableBody"></tbody>
+        </table>
+        <div class="table-note" id="archiveTableNote">Belum ada pemenang.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-title">Grand Draw BPKPD</div>
+  <p>Sistem pengundian berbasis browser untuk pelaksanaan Grand Draw yang sederhana, transparan, dan terpercaya.</p>
+  <div class="site-footer-copy">&copy; 2026 BPKPD. All rights reserved.</div>
+  <div class="site-footer-copy">&copy;(RYL).</div>
+</footer>
+
+<!-- RESULT MODAL -->
+<div class="modal-backdrop" id="resultModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 8.5L21 9L16 13.5L17.5 20L12 16.5L6.5 20L8 13.5L3 9L9.5 8.5L12 2Z" fill="currentColor"/></svg>
+      </div>
+      <h3>Hasil pengundian</h3>
+    </div>
+    <div class="winner-gif-wrap">
+      <img src="assets/atm-transparent.gif" alt="Animasi hadiah untuk pemenang" class="winner-gif">
+    </div>
+    <p class="modal-sub" id="modalSub">Berikut peserta yang terpilih pada undian ini.</p>
+    <div class="winner-list" id="modalWinnerList"></div>
+    <button class="btn btn-primary" id="modalCloseBtn" style="justify-content:center;">Simpan &amp; Lanjutkan</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
