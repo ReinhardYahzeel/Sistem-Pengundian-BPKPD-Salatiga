@@ -24,7 +24,7 @@
       <div class="brand-mark">
         <img src="images/logo.png" alt="Logo Grand Draw BPKPD">
       </div>
-      <div class="brand-text">GRAND DRAW <span>BPKPD &middot; Pengundian Peserta</span></div>
+      <div class="brand-text">GRAND DRAW <span>BPKPD &middot; Pengundian Wajib Pajak</span></div>
     </button>
 
     <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">
@@ -99,17 +99,21 @@
     </div>
 
     <div class="grid-2">
-      <div class="panel">
-        <div class="panel-title">Ringkasan progres undian <span class="sub" id="dashProgressPct">0%</span></div>
+      <div class="panel dash-progress">
+        <div class="panel-title">Ringkasan progres undian</div>
+        <div class="dash-progress-num">
+          <strong id="dashProgressPct">0%</strong>
+          <span>peserta sudah terpilih</span>
+        </div>
         <div class="progress-track"><div class="progress-fill" id="dashProgressFill" style="width:0%"></div></div>
-        <div class="progress-labels">
-          <span id="dashProgressLeft">0 di pool</span>
-          <span id="dashProgressRight">0 total</span>
+        <div class="dash-progress-chips">
+          <span class="dash-chip" id="dashProgressLeft">0 di pool</span>
+          <span class="dash-chip" id="dashProgressRight">0 total</span>
         </div>
       </div>
       <div class="panel">
         <div class="panel-title">Hadiah terpasang <span class="sub" id="dashPrizeCount">0 kategori</span></div>
-        <div class="prize-list" id="dashPrizeList">
+        <div class="dash-prize-list" id="dashPrizeList">
           <p class="empty-note">Belum ada hadiah diatur. Buka tab Undian &amp; Hadiah.</p>
         </div>
       </div>
@@ -122,7 +126,7 @@
     <div class="view-header">
       <div>
         <h2>Daftar peserta</h2>
-        <p>Impor peserta melalui CSV atau muat data contoh untuk mencoba sistem.</p>
+        <p>Impor peserta melalui Excel/CSV atau muat data contoh untuk mencoba sistem.</p>
       </div>
     </div>
 
@@ -131,22 +135,22 @@
         <div class="panel-title">Impor peserta</div>
         <div class="import-row">
           <label class="file-drop" for="csvInput">
-            <input type="file" id="csvInput" accept=".csv">
-            📄 Klik untuk unggah file CSV (Plat Nomor, ID, Alamat)
+            <input type="file" id="csvInput" accept=".xlsx,.xls,.csv,.txt" multiple>
+            📄 Pilih file Excel/CSV — bisa banyak file sekaligus, langsung masuk undian
           </label>
         </div>
         <div class="import-row" style="margin-top:10px;">
-          <button class="btn btn-secondary" id="loadSampleBtn" style="flex:1;">Muat 15.000 Data Dummy</button>
+          <button class="btn btn-ghost" id="loadSampleBtn" style="flex:1;">Muat 15.000 Data Dummy</button>
         </div>
-        <p class="empty-note" id="importHint" style="text-align:left;padding:12px 2px 0;">Kolom yang dikenali: Plat Nomor/Nopol/Plate, ID/NIK/Kode, Alamat/Address. Duplikat (ID + Plat Nomor sama) otomatis dilewati.</p>
+        <p class="empty-note" id="importHint" style="text-align:left;padding:12px 2px 0;">Pilih satu atau banyak file sekaligus — sebelum diimpor akan muncul dialog untuk <strong>mengisi jenis pajak</strong> tiap file (boleh diketik bebas, otomatis terisi dari kolom/judul file bila terdeteksi). Semua file langsung bergabung menjadi satu pool undian. Duplikat NPWPD otomatis dilewati.</p>
 
         <div class="participant-filters">
           <label class="search-field">
             <span aria-hidden="true">⌕</span>
-            <input type="search" id="participantSearch" placeholder="Cari plat nomor, ID, atau alamat..." autocomplete="off">
+            <input type="search" id="participantSearch" placeholder="Cari NPWPD, nama OP, atau jenis pajak..." autocomplete="off">
           </label>
-          <select id="participantDeptFilter" aria-label="Filter alamat">
-            <option value="">Semua alamat</option>
+          <select id="participantTaxFilter" aria-label="Filter jenis pajak">
+            <option value="">Semua jenis pajak</option>
           </select>
           <select id="participantStatusFilter" aria-label="Filter status peserta">
             <option value="">Semua status</option>
@@ -158,7 +162,7 @@
 
         <div class="mini-table-wrap">
           <table>
-            <thead><tr><th>ID</th><th>Plat Nomor</th><th>Alamat</th><th>Status</th></tr></thead>
+            <thead><tr><th>No</th><th>No NPWPD</th><th>Nama OP</th><th>Jenis Pajak</th><th>File Sumber</th><th>Status</th></tr></thead>
             <tbody id="participantsTableBody"></tbody>
           </table>
           <div class="table-note" id="participantsTableNote">Belum ada peserta.</div>
@@ -183,77 +187,75 @@
 
   <!-- UNDIAN & HADIAH VIEW -->
   <section class="view" id="view-undian">
-    <div class="view-header">
-      <div>
-        <h2>Undian &amp; hadiah</h2>
-        <p>Atur kategori hadiah, lalu jalankan pengundian secara acak dan aman.</p>
-      </div>
-    </div>
-
-    <div class="grid-2">
+    <div class="undian-top">
       <div class="draw-card">
         <div class="draw-status" id="drawStatus"><span class="pulse"></span> Siap diundi</div>
-        <div class="reel" id="reel">
-          <div class="reel-name" id="reelName">Tekan Putar Sekarang</div>
-          <div class="reel-sub" id="reelSub">Sistem akan memilih peserta secara acak dan aman</div>
-        </div>
         <div class="draw-controls">
+          <label class="prize-draw-select" for="prizeDrawSelect">
+            Hadiah yang diundi — satu per satu
+            <select id="prizeDrawSelect"></select>
+          </label>
           <button class="btn btn-primary" id="spinBtn">
             <svg class="spin-button-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/>
               <path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M5.99 5.99l2.12 2.12M15.89 15.89l2.12 2.12M18.01 5.99l-2.12 2.12M8.11 15.89l-2.12 2.12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
               <circle cx="12" cy="12" r="2.1" fill="currentColor"/>
             </svg>
-            Putar Sekarang
+            Putar Undian Hadiah
           </button>
           <button class="btn btn-danger-outline" id="cancelLastBtn" disabled>Batalkan Pemenang Terakhir</button>
         </div>
         <div class="draw-meta">
-          <div><span>Kebutuhan pemenang saat ini</span><strong id="metaNeeded">0</strong></div>
+          <div><span>Sisa pemenang yang perlu diundi</span><strong id="metaNeeded">0</strong></div>
           <div><span>Peserta aktif tersedia</span><strong id="metaActive">0</strong></div>
           <div><span>Undian dilakukan</span><strong id="metaRounds">0</strong></div>
         </div>
       </div>
 
-      <div class="stack">
+      <div class="undian-side">
         <div class="panel">
           <div class="panel-title">Daftar peserta <span class="sub" id="undianActiveCount">0 aktif</span></div>
-          <div class="import-row">
-            <label class="file-drop" for="csvInput2">
-              <input type="file" id="csvInput2" accept=".csv">
-              Impor CSV
-            </label>
-            <button class="btn btn-ghost" id="loadSampleBtn2" style="flex:1;">Muat 15.000 Data(Dummy)</button>
-          </div>
+          <p class="empty-note" style="text-align:left;">Peserta diimpor di <strong>tab Peserta</strong> lewat file Excel/CSV (bisa banyak file, tiap file jenis pajaknya sendiri). Semua file langsung digabung menjadi satu pool undian.
+          <br><br><button class="btn btn-secondary" data-goto="peserta" style="width:100%;">Buka tab Peserta →</button></p>
         </div>
 
-        <div class="panel">
+        <div class="panel dash-progress">
           <div class="panel-title">Progres undian</div>
+          <div class="dash-progress-num">
+            <strong id="undianProgressPct">0%</strong>
+            <span>peserta sudah terpilih</span>
+          </div>
           <div class="progress-track"><div class="progress-fill" id="undianProgressFill" style="width:0%"></div></div>
-          <div class="progress-labels">
-            <span id="undianProgressLeft">0 di pool</span>
-            <span id="undianProgressPct">0%</span>
-            <span id="undianProgressRight">0 total</span>
+          <div class="dash-progress-chips">
+            <span class="dash-chip" id="undianProgressLeft">0 di pool</span>
+            <span class="dash-chip" id="undianProgressRight">0 total</span>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="panel">
-          <div class="panel-title">Pengaturan hadiah baru</div>
-          <div class="prize-form">
-            <input type="number" id="prizeQty" min="1" value="1" placeholder="Jml">
-            <input type="text" id="prizeName" placeholder="NAMA / KATEGORI HADIAH, MIS. MAGICOM">
-            <button class="btn btn-secondary" id="addPrizeBtn">Tambah</button>
-          </div>
-          <div class="prize-list" id="prizeList">
-            <p class="empty-note">Belum ada hadiah. Tambahkan kategori di atas.</p>
-          </div>
-          <div class="prize-history">
-            <div class="prize-history-title">Catatan pengaturan yang sudah diundi</div>
-            <div id="prizeHistoryList">
-              <p class="empty-note">Belum ada pengaturan yang selesai diundi.</p>
-            </div>
-          </div>
-        </div>
+    <div class="panel undian-prizes">
+      <div class="panel-title">Pengaturan hadiah</div>
+      <div class="prize-form">
+        <label class="prize-field prize-field-qty" for="prizeQty">
+          <span>Jumlah</span>
+          <input type="number" id="prizeQty" min="1" value="1" placeholder="Jml">
+        </label>
+        <label class="prize-field prize-field-name" for="prizeName">
+          <span>Nama / kategori hadiah</span>
+          <input type="text" id="prizeName" placeholder="NAMA / KATEGORI HADIAH, MIS. MAGICOM">
+        </label>
+        <button class="btn btn-secondary" id="addPrizeBtn">Tambah</button>
+      </div>
+      <div class="import-row" style="margin-top:10px;">
+        <label class="file-drop" for="prizeFileInput">
+          <input type="file" id="prizeFileInput" accept=".xlsx,.xls,.csv" multiple>
+          🏆 Impor hadiah dari file (kolom HADIAH &amp; QTY)
+        </label>
+      </div>
+      <p class="empty-note" id="prizeImportHint" style="text-align:left;padding:10px 2px 0;font-size:11px;">Mendukung file RENCANA HADIAH (kolom "NAMA BARANG" + "JML BRG") maupun "Hadiah / Kategori" + "Qty / Jumlah". Muncul daftar untuk dicentang, yang mana saja yang mau diundi.</p>
+      <div class="prize-list" id="prizeList">
+        <p class="empty-note">Belum ada hadiah. Tambahkan kategori di atas.</p>
       </div>
     </div>
 
@@ -272,22 +274,23 @@
         <h2>Arsip pemenang</h2>
         <p>Riwayat pemenang, termasuk undian yang dibatalkan.</p>
       </div>
-      <button class="btn btn-primary" id="exportCsvBtn">⭳ Download Excel</button>
+      <button class="btn btn-primary" id="exportXlsxBtn">⭳ Excel (.xlsx)</button>
+      <button class="btn btn-secondary" id="exportCsvBtn">⭳ CSV</button>
     </div>
 
     <div class="panel">
       <div class="archive-filters">
         <label class="search-field">
           <span aria-hidden="true">⌕</span>
-          <input type="search" id="archiveSearch" placeholder="Cari plat nomor, ID, atau alamat..." autocomplete="off">
+          <input type="search" id="archiveSearch" placeholder="Cari NPWPD, nama OP, atau jenis pajak..." autocomplete="off">
         </label>
-        <select id="archiveDeptFilter" aria-label="Filter alamat arsip">
-          <option value="">Semua alamat</option>
+        <select id="archiveTaxFilter" aria-label="Filter jenis pajak arsip">
+          <option value="">Semua jenis pajak</option>
         </select>
         <select id="archiveSort" aria-label="Urutkan arsip pemenang">
           <option value="number">Urutan pemenang 1–seterusnya</option>
-          <option value="department">Alamat A–Z</option>
-          <option value="name">Plat Nomor A–Z</option>
+          <option value="tax">Jenis Pajak A–Z</option>
+          <option value="name">Nama OP A–Z</option>
           <option value="latest">Pemenang terbaru</option>
         </select>
         <button class="btn btn-ghost filter-reset" id="resetArchiveFilter" type="button">Reset</button>
@@ -295,7 +298,7 @@
       <div class="mini-table-wrap" style="border:none;">
         <table>
           <thead>
-            <tr><th>No</th><th>ID Peserta</th><th>Plat Nomor</th><th>Alamat</th><th>Hadiah</th><th>Waktu</th><th>Status</th></tr>
+            <tr><th>No</th><th>No NPWPD</th><th>Nama OP</th><th>Jenis Pajak</th><th>Hadiah</th><th>File Sumber</th><th>Waktu</th><th>Status</th></tr>
           </thead>
           <tbody id="archiveTableBody"></tbody>
         </table>
@@ -333,6 +336,210 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- CONFIRM MODAL (konfirmasi aksi penting: reset / batalkan pemenang) -->
+<div class="modal-backdrop" id="confirmModal" role="dialog" aria-modal="true" aria-label="Konfirmasi">
+  <div class="modal modal-confirm">
+    <div class="confirm-icon" aria-hidden="true">?</div>
+    <h3 class="confirm-title" id="confirmTitle">Konfirmasi</h3>
+    <p class="confirm-msg" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" id="confirmNoBtn" type="button">Batal</button>
+      <button class="btn btn-danger" id="confirmYesBtn" type="button">Ya</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVEAL OVERLAY (pengundian multi-pemenang: satu per satu) -->
+<div class="reveal-overlay" id="revealOverlay" role="dialog" aria-modal="true" aria-label="Hasil pengundian satu per satu">
+  <div class="reveal-stage">
+    <p class="reveal-eyebrow">GRAND DRAW · BPKPD</p>
+    <h1 class="reveal-title" id="revealTitleMain">-</h1>
+    <p class="reveal-title-sub" id="revealTitleSub"></p>
+
+    <div class="reveal-badge" id="revealBadge">
+      <svg class="reveal-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      <span id="revealBadgeText">PEMENANG KE-1 DARI 1</span>
+    </div>
+
+    <div class="reveal-pointer reveal-pointer-top" aria-hidden="true">
+        <svg viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pgTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F04C82"/><stop offset="1" stop-color="#C51F58"/></linearGradient></defs><path d="M17 21 C21 16 30 6.5 33 1 L1 1 C4 6.5 13 16 17 21 Z" fill="url(#pgTop)"/></svg>
+      </div>
+      <div class="reveal-reel" id="revealReel">
+        <div class="reveal-reel-track" id="revealReelTrack"></div>
+        <div class="reveal-reel-fade reveal-reel-fade-left" aria-hidden="true"></div>
+        <div class="reveal-reel-fade reveal-reel-fade-right" aria-hidden="true"></div>
+      </div>
+      <div class="reveal-pointer reveal-pointer-bottom" aria-hidden="true">
+        <svg viewBox="0 0 34 22" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pgBottom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C51F58"/><stop offset="1" stop-color="#F04C82"/></linearGradient></defs><path d="M17 1 C21 6 30 15.5 33 21 L1 21 C4 15.5 13 6 17 1 Z" fill="url(#pgBottom)"/></svg>
+      </div>
+      <div class="reveal-status" id="revealStatus">Sedang mencari pemenang...</div>
+      <div class="reveal-dots" id="revealDots"></div>
+
+    <div class="reveal-winner-card" id="revealWinnerCard">
+      <div class="reveal-winner-head">
+        <svg class="reveal-winner-head-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        <strong>DAFTAR PEMENANG HADIAH INI</strong>
+      </div>
+      <div class="reveal-summary-table">
+        <table class="reveal-winner-table">
+          <thead>
+            <tr><th class="c-no">No.</th><th>NPWPD</th><th>Nama OP</th><th>Jenis Pajak</th></tr>
+          </thead>
+          <tbody id="revealSummaryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <button class="btn reveal-confirm-btn" id="revealConfirmBtn" type="button" style="display:none;">Setuju &amp; Lanjutkan</button>
+  </div>
+
+  <!-- Lapisan blur background saat pop up pemenang tampil (hanya pemenang terlihat) -->
+  <div class="reveal-blur" id="revealBlur" aria-hidden="true"></div>
+
+  <!-- POP UP PEMENANG: Spin -> Winner Found -> Celebration -> Winner Modal
+       Komponen: reveal-popup (modal) / glow+confetti+deco+ribbons+dots (decor)
+                 crest (top) / pill (badge) / title (header) / name (identity)
+                 rule (subtitle) / info (winner tax info) / outro (footer)
+       Data di isi JS dari pemenang terpilih: revealPopupName / revealPopupSub / revealPopupTax -->
+  <div class="reveal-popup" id="revealPopup" aria-live="polite">
+    <span class="reveal-popup-glow" aria-hidden="true"></span>
+    <div class="reveal-confetti" id="revealConfetti" aria-hidden="true"></div>
+
+    <div class="reveal-popup-card reveal-popup-inner">
+      <span class="reveal-popup-deco" aria-hidden="true"></span>
+      <span class="reveal-popup-ribbons" aria-hidden="true"><i class="rb-1"></i><i class="rb-2"></i><i class="rb-3"></i><i class="rb-4"></i></span>
+      <span class="reveal-popup-dots" aria-hidden="true"></span>
+
+      <button class="reveal-popup-close" id="revealPopupClose" type="button" aria-label="Tutup pengumuman">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <div class="reveal-popup-crest reveal-popup-top" aria-hidden="true">
+        <span class="conf conf-p1"></span>
+        <span class="conf conf-p2"></span>
+        <span class="conf conf-p3"></span>
+        <span class="conf conf-p4"></span>
+        <span class="conf conf-p5"></span>
+        <span class="conf conf-p6"></span>
+        <span class="spark spark-s1">&#10022;</span>
+        <span class="spark spark-s2">&#10022;</span>
+        <span class="spark spark-s3">&#10022;</span>
+        <svg class="gift-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="wpBoxG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FF9BB6"/><stop offset="1" stop-color="#F43F6F"/>
+            </linearGradient>
+            <linearGradient id="wpLidG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFC2D3"/><stop offset="1" stop-color="#FF6F91"/>
+            </linearGradient>
+            <linearGradient id="wpBowG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FF8FAC"/><stop offset="1" stop-color="#E8306A"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="60" cy="111" rx="40" ry="6" fill="#F43F6F" fill-opacity=".16"/>
+          <path d="M26 60 H94 V95 a11 11 0 0 1 -11 11 H37 a11 11 0 0 1 -11 -11 Z" fill="url(#wpBoxG)"/>
+          <path d="M26 60 H94 V73 H26 Z" fill="#C4195A" fill-opacity=".16"/>
+          <rect x="17" y="44" width="86" height="18" rx="8" fill="url(#wpLidG)"/>
+          <rect x="17" y="44" width="86" height="18" rx="8" fill="#FFF1F5" fill-opacity=".24"/>
+          <rect x="53" y="44" width="14" height="62" rx="2" fill="#FFF6F9" fill-opacity=".92"/>
+          <path d="M60 41 C40 23 21 29 27 45 C32 58 52 54 60 41 Z" fill="url(#wpBowG)"/>
+          <path d="M60 41 C80 23 99 29 93 45 C88 58 68 54 60 41 Z" fill="url(#wpBowG)"/>
+          <path d="M60 41 C40 23 21 29 27 45 C32 58 52 54 60 41 Z" fill="#FFFFFF" fill-opacity=".18"/>
+          <circle cx="60" cy="42" r="9" fill="#E8306A"/>
+          <circle cx="56.5" cy="38.5" r="3" fill="#FFFFFF" fill-opacity=".55"/>
+        </svg>
+      </div>
+
+      <span class="reveal-popup-pill reveal-popup-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        <span>PEMENANG UNDIAN</span>
+      </span>
+
+      <h2 class="reveal-popup-title reveal-popup-header">
+        <span class="win-hi">Selamat!</span>
+        <span class="win-sub">Anda Berhasil</span>
+      </h2>
+
+      <p class="reveal-popup-name reveal-popup-identity" id="revealPopupName">-</p>
+
+      <p class="reveal-popup-rule reveal-popup-subtitle">
+        <span class="reveal-popup-rule-line" aria-hidden="true"></span>
+        <span class="reveal-popup-rule-text">MENDAPATKAN HADIAH</span>
+        <span class="reveal-popup-rule-line" aria-hidden="true"></span>
+      </p>
+
+      <div class="reveal-popup-info reveal-popup-taxinfo">
+        <div class="reveal-popup-info-row">
+          <span class="reveal-popup-info-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M6 16c1-1.5 2-2 3-2s2 .5 3 2"/><path d="M15 8h3M15 12h3"/></svg>
+          </span>
+          <span class="reveal-popup-info-text">
+            <span class="reveal-popup-info-label">NO. NPWPD</span>
+            <span class="reveal-popup-info-value" id="revealPopupSub">-</span>
+          </span>
+        </div>
+        <div class="reveal-popup-info-row">
+          <span class="reveal-popup-info-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 16v-5M10 16v-5M14 16v-5M19 16v-5"/><path d="M2 9l10-5 10 5H2Z"/></svg>
+          </span>
+          <span class="reveal-popup-info-text">
+            <span class="reveal-popup-info-label">JENIS PAJAK</span>
+            <span class="reveal-popup-info-value" id="revealPopupTax">-</span>
+          </span>
+        </div>
+      </div>
+
+      <p class="reveal-popup-outro reveal-popup-footer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3Z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/><path d="M6.2 12.9V21"/></svg>
+        <span>Terima kasih telah berpartisipasi!</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT TAX MODAL -->
+<div class="modal-backdrop" id="importTaxModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Atur jenis pajak sebelum impor</h3>
+    </div>
+    <p class="modal-sub" id="importTaxSub"></p>
+    <div class="import-tax-list" id="importTaxList"></div>
+    <datalist id="importTaxModalDatalist"></datalist>
+    <div class="import-tax-actions">
+      <button class="btn btn-secondary" id="importTaxCancelBtn">Batal</button>
+      <button class="btn btn-primary" id="importTaxGoBtn">Impor sekarang</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIZE PICK MODAL -->
+<div class="modal-backdrop" id="prizePickModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Pilih hadiah yang mau diundi</h3>
+    </div>
+    <p class="modal-sub" id="prizePickSub"></p>
+    <div class="prize-pick-toolbar">
+      <select id="prizePickSheet" class="pick-sheet"></select>
+      <label class="pick-all"><input type="checkbox" id="prizePickAll" checked> <span>Pilih semua</span></label>
+      <span class="pick-count" id="prizePickCount">0 dipilih</span>
+    </div>
+    <div class="prize-pick-list" id="prizePickList"></div>
+    <div class="prize-pick-actions">
+      <button class="btn btn-secondary" id="prizePickCloseBtn">Batal</button>
+      <button class="btn btn-primary" id="prizePickImportBtn">Impor terpilih</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
