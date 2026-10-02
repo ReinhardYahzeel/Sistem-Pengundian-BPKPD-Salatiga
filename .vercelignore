@@ -1,0 +1,6 @@
+.git
+.vercel
+.env*
+node_modules
+assets/
+palette-check.png
